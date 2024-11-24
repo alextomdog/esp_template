@@ -1,5 +1,6 @@
 import sys
 import os
+import pyperclip
 
 # usage: python compress.py <input_file> <output_file>
 
@@ -17,7 +18,8 @@ def compress(input_file, output_file):
 
             # Remove inline comments (//)
             if '//' in line:
-                line = line.split('//')[0]
+                if '://' not in line:  # ws:// ......
+                    line = line.split('//')[0]
 
             # Handle multi-line comments (/*...*/)
             if '/*' in line:
@@ -37,7 +39,9 @@ def compress(input_file, output_file):
     # Write the compressed content to the output file
     with open(output_file, 'w', encoding="utf-8") as f:
         # Join the lines with newline characters
-        f.write("\n".join(output_file_content))
+        content = "".join(output_file_content)
+        pyperclip.copy(content)  # Copy the content to the clipboard
+        f.write(content)  # Write the content to the file
 
 
 if __name__ == "__main__":

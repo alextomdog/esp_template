@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Demo</title>
+</head>
+
+<body>
+
+    <h1>Message: </h1>
+    <h2 id="info"></h2>
+    <button onclick="sayHello()">say hello</button>
+
+    <script>
+        var ws = null;
+        var info = msg => document.getElementById("info").innerHTML = msg;
+
+        function connect_ws() {
+            try {
+                // Automatically use secure WebSocket if the page is using https
+                // ws = new WebSocket(`ws://${window.location.hostname}/ws`);
+                ws = new WebSocket("ws://192.168.192.1/ws");
+
+                ws.onopen = function (evt) {
+                    info("Connection open...");
+                };
+
+                ws.onmessage = on_message;
+
+                ws.onclose = function (evt) {
+                    info("Connection closed.");
+                    ws = null;
+                };
+
+                ws.onerror = function (evt) {
+                    info("Connection error.");
+                    ws = null;
+                };
+            } catch (e) {
+                ws = null;
+                info("Connection error.");
+            }
+        };
+
+        function send_message(json_data) {
+            if (ws === null || ws.readyState !== WebSocket.OPEN) {
+                connect_ws();
+            } else {
+                ws.send(JSON.stringify(json_data));
+            }
+        };
+
+        function on_message(evt) {
+            let data = JSON.parse(evt.data);
+            info(data.message);
+        };
+
+        function sayHello() {
+            send_message({ "message": "Hello, server!" });
+        }
+
+        window.onload = function () {
+            connect_ws();
+        };
+    </script>
+
+</body>
+
+</html>
